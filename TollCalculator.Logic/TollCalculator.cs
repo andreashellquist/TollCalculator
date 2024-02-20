@@ -1,5 +1,4 @@
 ﻿using TollCalculator.Logic.Models;
-
 namespace TollCalculator.Logic;
 
 public interface ITollCalculator
@@ -48,7 +47,7 @@ public class TollCalculator:ITollCalculator
     private bool IsTollFreeVehicle(Vehicle vehicle)
     {
         if (vehicle == null) return false;
-        String vehicleType = vehicle.GetVehicleType();
+        string vehicleType = vehicle.GetVehicleType();
         return vehicleType.Equals(TollFreeVehicles.Motorbike.ToString()) ||
                vehicleType.Equals(TollFreeVehicles.Tractor.ToString()) ||
                vehicleType.Equals(TollFreeVehicles.Emergency.ToString()) ||
@@ -76,7 +75,7 @@ public class TollCalculator:ITollCalculator
         else return 0;
     }
 
-    private Boolean IsTollFreeDate(DateTime date)
+    private bool IsTollFreeDate(DateTime date)
     {
         int year = date.Year;
         int month = date.Month;
