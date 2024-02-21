@@ -1,11 +1,10 @@
-﻿using System.Linq.Expressions;
-using TollCalculator.Logic.Models;
+﻿using TollCalculator.Logic.Models;
 
 namespace TollCalculator.Logic;
 
 public interface ITollCalculator
 {
-    int GetTollFee(Vehicle vehicle, DateTime[] dates);
+    int GetTollFee(Vehicle vehicle, DateTime[] passages);
 }
 
 public class TollCalculator : ITollCalculator
@@ -17,82 +16,87 @@ public class TollCalculator : ITollCalculator
  * @param dates   - date and time of all passes on one day
  * @return - the total toll fee for that day
  */
-    public int GetTollFee(Vehicle vehicle, DateTime[] dates)
+    public int GetTollFee(Vehicle vehicle, DateTime[] passages)
     {
         var totalFee = 0;
 
-        var datesGroupedByDate = GetDatesGroupedByDate(dates);
+        var dateGroupedPassages = GetPassagesGroupedByDate(passages);
 
-        foreach (var dateGroup in datesGroupedByDate)
+        foreach (var dateGroup in dateGroupedPassages)
         {
-            var totalFeeForDateGroup = 0;
-            var datesInGroup = dateGroup.Select(x => x).ToArray();
-            var datesGroupedByHourInterval = GetDatesGroupedByHourInterval(datesInGroup);
+            var totalFeeForCurrentSixtyMinuteIntervalPassageGroup = 0;
+            var passagesInDateGroup = dateGroup.Select(x => x).ToArray();
+            var sixtyMinuteIntervalPassageGroups = GetPassagesGroupedBySixtyMinuteInterval(passagesInDateGroup);
 
-            foreach (var dateGroupByHourInterval in datesGroupedByHourInterval)
+            foreach (var sixtyMinuteIntervalPassageGroup in sixtyMinuteIntervalPassageGroups)
             {
-                var intervalStart = dateGroupByHourInterval.Key;
-                var datesInHourIntervalGroup = dateGroupByHourInterval.Value;
+                var intervalStart = sixtyMinuteIntervalPassageGroup.Key;
+                var passagesInSixtyMinuteIntervalGroup = sixtyMinuteIntervalPassageGroup.Value;
 
-                if (!datesInHourIntervalGroup.Any())
+                if (!passagesInSixtyMinuteIntervalGroup.Any())
                 {
-                    totalFeeForDateGroup += GetTollFee(vehicle, dateGroupByHourInterval.Key);
+                    totalFeeForCurrentSixtyMinuteIntervalPassageGroup += GetTollFee(vehicle, sixtyMinuteIntervalPassageGroup.Key);
                     continue;
                 }
 
-                var highestFeeInHourGroup = GetTollFee(vehicle, intervalStart);
-                foreach (var date in datesInHourIntervalGroup)
+                var highestFeeInSixtyMinuteGroup = GetTollFee(vehicle, intervalStart);
+                foreach (var passage in passagesInSixtyMinuteIntervalGroup)
                 {
-                    var nextFee = GetTollFee(vehicle, date);
+                    var nextFee = GetTollFee(vehicle, passage);
 
-                    if (nextFee >= highestFeeInHourGroup)
+                    if (nextFee >= highestFeeInSixtyMinuteGroup)
                     {
-                        highestFeeInHourGroup = nextFee;
+                        highestFeeInSixtyMinuteGroup = nextFee;
                     }
                 }
 
-                totalFeeForDateGroup += highestFeeInHourGroup;
+                totalFeeForCurrentSixtyMinuteIntervalPassageGroup += highestFeeInSixtyMinuteGroup;
             }
 
-            if (totalFeeForDateGroup > 60)
+            if (totalFeeForCurrentSixtyMinuteIntervalPassageGroup > 60)
             {
-                totalFeeForDateGroup = 60;
+                totalFeeForCurrentSixtyMinuteIntervalPassageGroup = 60;
             }
 
-            totalFee += totalFeeForDateGroup;
+            totalFee += totalFeeForCurrentSixtyMinuteIntervalPassageGroup;
         }
 
         return totalFee;
     }
 
-    private IGrouping<DateTime, DateTime>[] GetDatesGroupedByDate(DateTime[] dates) =>
-        dates.GroupBy(x => x.Date).ToArray();
+    private IGrouping<DateTime, DateTime>[] GetPassagesGroupedByDate(DateTime[] passages) =>
+        passages.GroupBy(x => x.Date).ToArray();
 
-    private Dictionary<DateTime, List<DateTime>> GetDatesGroupedByHourInterval(DateTime[] dates)
+    private Dictionary<DateTime, List<DateTime>> GetPassagesGroupedBySixtyMinuteInterval(DateTime[] passages)
     {
-        var datesSortedAscending = dates.OrderBy(x => x.Millisecond).ToArray();
+        var passagesSortedAscending = passages.OrderBy(x => x.Millisecond).ToArray();
 
-        var groupedDates = new Dictionary<DateTime, List<DateTime>>
-            { { datesSortedAscending.First(), new List<DateTime>() } };
+        var groupedPassages = new Dictionary<DateTime, List<DateTime>>();
 
-        var currentIntervalStartTime = datesSortedAscending.First();
-        foreach (var date in datesSortedAscending.Skip(1))
+        DateTime currentIntervalStartTime = default;
+        foreach (var passage in passagesSortedAscending)
         {
-            if (IsDateWithinOneHourFromIntervalStart(currentIntervalStartTime, date))
+            if (currentIntervalStartTime == default)
             {
-                groupedDates[currentIntervalStartTime].Add(date);
+                currentIntervalStartTime = passage;
+                groupedPassages.Add(passage, new List<DateTime>());
+            }
+            
+            if (IsPassageWithinOneHourFromIntervalStart(currentIntervalStartTime, passage))
+            {
+                groupedPassages[currentIntervalStartTime].Add(passage);
             }
             else
             {
-                groupedDates.Add(date, new List<DateTime>());
-                currentIntervalStartTime = date;
+                groupedPassages.Add(passage, new List<DateTime>());
+                currentIntervalStartTime = passage;
             }
         }
 
-        return groupedDates;
+        return groupedPassages;
     }
 
-    private bool IsDateWithinOneHourFromIntervalStart(DateTime intervalStart, DateTime currentDateTime)
+    private bool IsPassageWithinOneHourFromIntervalStart(DateTime intervalStart, DateTime currentDateTime)
     {
         var diffInMinutes = currentDateTime.Subtract(intervalStart).TotalMinutes;
         return diffInMinutes <= 60;
@@ -110,32 +114,32 @@ public class TollCalculator : ITollCalculator
                vehicleType.Equals(TollFreeVehicles.Military.ToString());
     }
 
-    public int GetTollFee(Vehicle vehicle, DateTime date)
+    public int GetTollFee(Vehicle vehicle, DateTime passage)
     {
-        if (IsTollFreeDate(date) || IsTollFreeVehicle(vehicle)) return 0;
+        if (IsTollFreeDate(passage) || IsTollFreeVehicle(vehicle)) return 0;
 
-        var hour = date.Hour;
-        var minute = date.Minute;
+        var hour = passage.Hour;
+        var minute = passage.Minute;
 
         if (hour == 6 && minute >= 0 && minute <= 29) return 8;
-        else if (hour == 6 && minute >= 30 && minute <= 59) return 13;
-        else if (hour == 7 && minute >= 0 && minute <= 59) return 18;
-        else if (hour == 8 && minute >= 0 && minute <= 29) return 13;
-        else if (hour >= 8 && hour <= 14 && minute >= 30 && minute <= 59) return 8;
-        else if (hour == 15 && minute >= 0 && minute <= 29) return 13;
-        else if (hour == 15 && minute >= 0 || hour == 16 && minute <= 59) return 18;
-        else if (hour == 17 && minute >= 0 && minute <= 59) return 13;
-        else if (hour == 18 && minute >= 0 && minute <= 29) return 8;
-        else return 0;
+        if (hour == 6 && minute >= 30 && minute <= 59) return 13;
+        if (hour == 7 && minute >= 0 && minute <= 59) return 18;
+        if (hour == 8 && minute >= 0 && minute <= 29) return 13;
+        if (hour >= 8 && hour <= 14 && minute >= 30 && minute <= 59) return 8;
+        if (hour == 15 && minute >= 0 && minute <= 29) return 13;
+        if (hour == 15 && minute >= 0 || hour == 16 && minute <= 59) return 18;
+        if (hour == 17 && minute >= 0 && minute <= 59) return 13;
+        if (hour == 18 && minute >= 0 && minute <= 29) return 8;
+        return 0;
     }
 
-    private bool IsTollFreeDate(DateTime date)
+    private bool IsTollFreeDate(DateTime passage)
     {
-        var year = date.Year;
-        var month = date.Month;
-        var day = date.Day;
+        var year = passage.Year;
+        var month = passage.Month;
+        var day = passage.Day;
 
-        if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday) return true;
+        if (passage.DayOfWeek == DayOfWeek.Saturday || passage.DayOfWeek == DayOfWeek.Sunday) return true;
 
         if (year == 2013)
         {

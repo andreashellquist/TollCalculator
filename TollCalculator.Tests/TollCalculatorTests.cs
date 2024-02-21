@@ -61,6 +61,21 @@ public class TollCalculatorTests
     }
     
     [Fact]
+    public void TollCalculator_WhenPassagesArrayIsEmpty_ShouldReturn_0()
+    {
+        //arrange
+        var vehicle = new Car();
+        var passingDates = new DateTime[]{};
+
+        //act
+        var tollCalculator = new Logic.TollCalculator();
+        var tollFee = tollCalculator.GetTollFee(vehicle, passingDates);
+        
+        //assert
+        Assert.Equal(0, tollFee);
+    }
+    
+    [Fact]
     public void TollCalculator_WhenMultipleCongestionFeesAreRegisteredWithinAnHour_HighestFeeIsReturned()
     {
         //arrange
