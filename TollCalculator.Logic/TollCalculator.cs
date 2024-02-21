@@ -1,4 +1,6 @@
-﻿using TollCalculator.Logic.Models;
+﻿using System.Linq.Expressions;
+using TollCalculator.Logic.Models;
+
 namespace TollCalculator.Logic;
 
 public interface ITollCalculator
@@ -6,9 +8,8 @@ public interface ITollCalculator
     int GetTollFee(Vehicle vehicle, DateTime[] dates);
 }
 
-public class TollCalculator:ITollCalculator
+public class TollCalculator : ITollCalculator
 {
-
     /**
  * Calculate the total toll fee for one day
  *
@@ -16,38 +17,91 @@ public class TollCalculator:ITollCalculator
  * @param dates   - date and time of all passes on one day
  * @return - the total toll fee for that day
  */
-
     public int GetTollFee(Vehicle vehicle, DateTime[] dates)
     {
-        DateTime intervalStart = dates[0];
-        int totalFee = 0;
-        foreach (DateTime date in dates)
+        var totalFee = 0;
+
+        var datesGroupedByDate = GetDatesGroupedByDate(dates);
+
+        foreach (var dateGroup in datesGroupedByDate)
         {
-            int nextFee = GetTollFee(date, vehicle);
-            int tempFee = GetTollFee(intervalStart, vehicle);
+            var totalFeeForDateGroup = 0;
+            var datesInGroup = dateGroup.Select(x => x).ToArray();
+            var datesGroupedByHourInterval = GetDatesGroupedByHourInterval(datesInGroup);
 
-            long diffInMillies = date.Millisecond - intervalStart.Millisecond;
-            long minutes = diffInMillies/1000/60;
-
-            if (minutes <= 60)
+            foreach (var dateGroupByHourInterval in datesGroupedByHourInterval)
             {
-                if (totalFee > 0) totalFee -= tempFee;
-                if (nextFee >= tempFee) tempFee = nextFee;
-                totalFee += tempFee;
+                var intervalStart = dateGroupByHourInterval.Key;
+                var datesInHourIntervalGroup = dateGroupByHourInterval.Value;
+
+                if (!datesInHourIntervalGroup.Any())
+                {
+                    totalFeeForDateGroup += GetTollFee(vehicle, dateGroupByHourInterval.Key);
+                    continue;
+                }
+
+                var highestFeeInHourGroup = GetTollFee(vehicle, intervalStart);
+                foreach (var date in datesInHourIntervalGroup)
+                {
+                    var nextFee = GetTollFee(vehicle, date);
+
+                    if (nextFee >= highestFeeInHourGroup)
+                    {
+                        highestFeeInHourGroup = nextFee;
+                    }
+                }
+
+                totalFeeForDateGroup += highestFeeInHourGroup;
+            }
+
+            if (totalFeeForDateGroup > 60)
+            {
+                totalFeeForDateGroup = 60;
+            }
+
+            totalFee += totalFeeForDateGroup;
+        }
+
+        return totalFee;
+    }
+
+    private IGrouping<DateTime, DateTime>[] GetDatesGroupedByDate(DateTime[] dates) =>
+        dates.GroupBy(x => x.Date).ToArray();
+
+    private Dictionary<DateTime, List<DateTime>> GetDatesGroupedByHourInterval(DateTime[] dates)
+    {
+        var datesSortedAscending = dates.OrderBy(x => x.Millisecond).ToArray();
+
+        var groupedDates = new Dictionary<DateTime, List<DateTime>>
+            { { datesSortedAscending.First(), new List<DateTime>() } };
+
+        var currentIntervalStartTime = datesSortedAscending.First();
+        foreach (var date in datesSortedAscending.Skip(1))
+        {
+            if (IsDateWithinOneHourFromIntervalStart(currentIntervalStartTime, date))
+            {
+                groupedDates[currentIntervalStartTime].Add(date);
             }
             else
             {
-                totalFee += nextFee;
+                groupedDates.Add(date, new List<DateTime>());
+                currentIntervalStartTime = date;
             }
         }
-        if (totalFee > 60) totalFee = 60;
-        return totalFee;
+
+        return groupedDates;
+    }
+
+    private bool IsDateWithinOneHourFromIntervalStart(DateTime intervalStart, DateTime currentDateTime)
+    {
+        var diffInMinutes = currentDateTime.Subtract(intervalStart).TotalMinutes;
+        return diffInMinutes <= 60;
     }
 
     private bool IsTollFreeVehicle(Vehicle vehicle)
     {
         if (vehicle == null) return false;
-        string vehicleType = vehicle.GetVehicleType();
+        var vehicleType = vehicle.GetVehicleType();
         return vehicleType.Equals(TollFreeVehicles.Motorbike.ToString()) ||
                vehicleType.Equals(TollFreeVehicles.Tractor.ToString()) ||
                vehicleType.Equals(TollFreeVehicles.Emergency.ToString()) ||
@@ -56,12 +110,12 @@ public class TollCalculator:ITollCalculator
                vehicleType.Equals(TollFreeVehicles.Military.ToString());
     }
 
-    public int GetTollFee(DateTime date, Vehicle vehicle)
+    public int GetTollFee(Vehicle vehicle, DateTime date)
     {
         if (IsTollFreeDate(date) || IsTollFreeVehicle(vehicle)) return 0;
 
-        int hour = date.Hour;
-        int minute = date.Minute;
+        var hour = date.Hour;
+        var minute = date.Minute;
 
         if (hour == 6 && minute >= 0 && minute <= 29) return 8;
         else if (hour == 6 && minute >= 30 && minute <= 59) return 13;
@@ -77,9 +131,9 @@ public class TollCalculator:ITollCalculator
 
     private bool IsTollFreeDate(DateTime date)
     {
-        int year = date.Year;
-        int month = date.Month;
-        int day = date.Day;
+        var year = date.Year;
+        var month = date.Month;
+        var day = date.Day;
 
         if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday) return true;
 
@@ -97,6 +151,7 @@ public class TollCalculator:ITollCalculator
                 return true;
             }
         }
+
         return false;
     }
 
