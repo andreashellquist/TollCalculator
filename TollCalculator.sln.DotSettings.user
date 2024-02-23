@@ -1,6 +1,12 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=591957b4_002D902b_002D41b2_002Da874_002D3a85fde6c9d0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TollCalculatorReturns_0_WhenVehicleTypeIsIncludedInFreeVehicleTypes" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=591957b4_002D902b_002D41b2_002Da874_002D3a85fde6c9d0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TollCalculatorReturns_0_WhenVehicleTypeIsIncludedInFreeVehicleTypes" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/andreas/Projects/TollCalculator/TollCalculator.Tests" Presentation="&amp;lt;TollCalculator.Tests&amp;gt;" /&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=5cc4de0b_002D55fb_002D4425_002D80f3_002Db826088ed4f0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TollCalculatorController_WhenNoPassingsIsRegisteredInDto_Returns_0_AndLogsTheReason" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::9C9B5269-8F40-42BF-9D35-252091E0DE95::net7.0::TollCalculator.Tests.TollCalculatorTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::9C9B5269-8F40-42BF-9D35-252091E0DE95::net7.0::TollCalculator.Tests.TollCalculator.Api.TollCalculatorControllerTests.TollCalculatorController_WhenNoPassingsIsRegisteredInDto_Returns_0_AndLogsTheReason&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=85fa35bb_002D017b_002D4b72_002D8edd_002D4ffa3f4b533c/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TollCalculatorController_WhenNoPassingsIsRegisteredInDto_Returns_0_AndLogsTheReason #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Project Location="/Users/andreas/Projects/TollCalculator/TollCalculator.Tests" Presentation="&amp;lt;TollCalculator.Tests&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

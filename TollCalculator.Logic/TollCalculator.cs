@@ -4,19 +4,26 @@ namespace TollCalculator.Logic;
 
 public interface ITollCalculator
 {
-    int GetTollFee(Vehicle vehicle, DateTime[] passages);
+    int GetTollFee(VehicleType vehicleType, DateTime passing);
+    int GetTotalTollFeeForMultiplePassings(VehicleType vehicleType, DateTime[] passages);
 }
 
 public class TollCalculator : ITollCalculator
 {
+    private static readonly VehicleType[] TollFreeVehicleTypes =
+    {
+        VehicleType.Diplomat, VehicleType.Emergency, VehicleType.Foreign, VehicleType.Military, VehicleType.Motorbike,
+        VehicleType.Tractor
+    }; 
+    
     /**
- * Calculate the total toll fee for one day
- *
- * @param vehicle - the vehicle
- * @param dates   - date and time of all passes on one day
- * @return - the total toll fee for that day
- */
-    public int GetTollFee(Vehicle vehicle, DateTime[] passages)
+     * Calculate the total toll fee for passings over a period of time
+     *
+     * @param vehicleType - the vehicleType
+     * @param passages   - date and time of all passings over a period of time
+     * @return - the total toll fee for that period of time
+     */
+    public int GetTotalTollFeeForMultiplePassings(VehicleType vehicleType, DateTime[] passages)
     {
         var totalFee = 0;
 
@@ -35,14 +42,15 @@ public class TollCalculator : ITollCalculator
 
                 if (!passagesInSixtyMinuteIntervalGroup.Any())
                 {
-                    totalFeeForCurrentSixtyMinuteIntervalPassageGroup += GetTollFee(vehicle, sixtyMinuteIntervalPassageGroup.Key);
+                    totalFeeForCurrentSixtyMinuteIntervalPassageGroup +=
+                        GetTollFee(vehicleType, sixtyMinuteIntervalPassageGroup.Key);
                     continue;
                 }
 
-                var highestFeeInSixtyMinuteGroup = GetTollFee(vehicle, intervalStart);
+                var highestFeeInSixtyMinuteGroup = GetTollFee(vehicleType, intervalStart);
                 foreach (var passage in passagesInSixtyMinuteIntervalGroup)
                 {
-                    var nextFee = GetTollFee(vehicle, passage);
+                    var nextFee = GetTollFee(vehicleType, passage);
 
                     if (nextFee >= highestFeeInSixtyMinuteGroup)
                     {
@@ -64,6 +72,32 @@ public class TollCalculator : ITollCalculator
         return totalFee;
     }
 
+    /**
+     * Calculate the toll fee for a single passing occurence
+     *
+     * @param vehicleType - the vehicleType
+     * @param passages   - date and time of the passing
+     * @return - the toll fee for the single passing
+     */
+    public int GetTollFee(VehicleType vehicleType, DateTime passing)
+    {
+        if (IsTollFreeDate(passing) || IsTollFreeVehicle(vehicleType)) return 0;
+
+        var hour = passing.Hour;
+        var minute = passing.Minute;
+
+        if (hour == 6 && minute >= 0 && minute <= 29) return 8;
+        if (hour == 6 && minute >= 30 && minute <= 59) return 13;
+        if (hour == 7 && minute >= 0 && minute <= 59) return 18;
+        if (hour == 8 && minute >= 0 && minute <= 29) return 13;
+        if (hour >= 8 && hour <= 14 && minute >= 30 && minute <= 59) return 8;
+        if (hour == 15 && minute >= 0 && minute <= 29) return 13;
+        if (hour == 15 && minute >= 0 || hour == 16 && minute <= 59) return 18;
+        if (hour == 17 && minute >= 0 && minute <= 59) return 13;
+        if (hour == 18 && minute >= 0 && minute <= 29) return 8;
+        return 0;
+    }
+    
     private IGrouping<DateTime, DateTime>[] GetPassagesGroupedByDate(DateTime[] passages) =>
         passages.GroupBy(x => x.Date).ToArray();
 
@@ -81,7 +115,7 @@ public class TollCalculator : ITollCalculator
                 currentIntervalStartTime = passage;
                 groupedPassages.Add(passage, new List<DateTime>());
             }
-            
+
             if (IsPassageWithinOneHourFromIntervalStart(currentIntervalStartTime, passage))
             {
                 groupedPassages[currentIntervalStartTime].Add(passage);
@@ -102,35 +136,9 @@ public class TollCalculator : ITollCalculator
         return diffInMinutes <= 60;
     }
 
-    private bool IsTollFreeVehicle(Vehicle vehicle)
+    private bool IsTollFreeVehicle(VehicleType vehicleType)
     {
-        if (vehicle == null) return false;
-        var vehicleType = vehicle.GetVehicleType();
-        return vehicleType.Equals(TollFreeVehicles.Motorbike.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Tractor.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Emergency.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Diplomat.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Foreign.ToString()) ||
-               vehicleType.Equals(TollFreeVehicles.Military.ToString());
-    }
-
-    public int GetTollFee(Vehicle vehicle, DateTime passage)
-    {
-        if (IsTollFreeDate(passage) || IsTollFreeVehicle(vehicle)) return 0;
-
-        var hour = passage.Hour;
-        var minute = passage.Minute;
-
-        if (hour == 6 && minute >= 0 && minute <= 29) return 8;
-        if (hour == 6 && minute >= 30 && minute <= 59) return 13;
-        if (hour == 7 && minute >= 0 && minute <= 59) return 18;
-        if (hour == 8 && minute >= 0 && minute <= 29) return 13;
-        if (hour >= 8 && hour <= 14 && minute >= 30 && minute <= 59) return 8;
-        if (hour == 15 && minute >= 0 && minute <= 29) return 13;
-        if (hour == 15 && minute >= 0 || hour == 16 && minute <= 59) return 18;
-        if (hour == 17 && minute >= 0 && minute <= 59) return 13;
-        if (hour == 18 && minute >= 0 && minute <= 29) return 8;
-        return 0;
+        return TollFreeVehicleTypes.Contains(vehicleType);
     }
 
     private bool IsTollFreeDate(DateTime passage)
@@ -157,15 +165,5 @@ public class TollCalculator : ITollCalculator
         }
 
         return false;
-    }
-
-    private enum TollFreeVehicles
-    {
-        Motorbike = 0,
-        Tractor = 1,
-        Emergency = 2,
-        Diplomat = 3,
-        Foreign = 4,
-        Military = 5
     }
 }

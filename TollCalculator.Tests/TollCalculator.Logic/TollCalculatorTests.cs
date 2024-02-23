@@ -1,6 +1,7 @@
+using TollCalculator.Dtos;
 using TollCalculator.Logic.Models;
 
-namespace TollCalculator.Tests;
+namespace TollCalculator.Tests.TollCalculator.Logic;
 
 public class TollCalculatorTests
 {
@@ -8,12 +9,12 @@ public class TollCalculatorTests
     public void TollCalculator_WhenVehicleTypeIsIncludedInFreeVehicleTypes_Returns_0()
     {
         //arrange
-        var vehicle = new Motorbike();
+        var vehicleType = VehicleType.Motorbike;
         var passingDate = new DateTime(2013, 03, 11, 8, 4, 0); //Monday
 
         //act
-        var tollCalculator = new Logic.TollCalculator();
-        var tollFee = tollCalculator.GetTollFee(vehicle, passingDate);
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollFee = tollCalculator.GetTollFee(vehicleType, passingDate);
         
         //assert
         Assert.Equal(0, tollFee);
@@ -24,12 +25,12 @@ public class TollCalculatorTests
     public void TollCalculator_WhenDayIsWeekend_Returns_0()
     {
         //arrange
-        var vehicle = new Car();
+        var vehicleType = VehicleType.Car;
         var passingDate = new DateTime(2013, 03, 10, 8, 4, 0); //Sunday
 
         //act
-        var tollCalculator = new Logic.TollCalculator();
-        var tollFee = tollCalculator.GetTollFee(vehicle, passingDate);
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollFee = tollCalculator.GetTollFee(vehicleType, passingDate);
         
         //assert
         Assert.Equal(0, tollFee);
@@ -49,12 +50,12 @@ public class TollCalculatorTests
     public void TollCalculatorReturns_ForEachTimeSlot_CorrectFeeIsRegistered(int hour, int minute, int expectedFee)
     {
         //arrange
-        var vehicle = new Car();
+        var vehicleType = VehicleType.Car;
         var passingDate = new DateTime(2013, 03, 11, hour, minute, 0); //Monday
 
         //act
-        var tollCalculator = new Logic.TollCalculator();
-        var tollFee = tollCalculator.GetTollFee(vehicle, passingDate);
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollFee = tollCalculator.GetTollFee(vehicleType, passingDate);
         
         //assert
         Assert.Equal(expectedFee, tollFee);
@@ -64,12 +65,12 @@ public class TollCalculatorTests
     public void TollCalculator_WhenPassagesArrayIsEmpty_ShouldReturn_0()
     {
         //arrange
-        var vehicle = new Car();
+        var vehicleType = VehicleType.Car;
         var passingDates = new DateTime[]{};
 
         //act
-        var tollCalculator = new Logic.TollCalculator();
-        var tollFee = tollCalculator.GetTollFee(vehicle, passingDates);
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicleType, passingDates);
         
         //assert
         Assert.Equal(0, tollFee);
@@ -79,7 +80,7 @@ public class TollCalculatorTests
     public void TollCalculator_WhenMultipleCongestionFeesAreRegisteredWithinAnHour_HighestFeeIsReturned()
     {
         //arrange
-        var vehicle = new Car();
+        var vehicleType = VehicleType.Car;
         var passingDates = new DateTime[]
         {
             new(2013, 03, 11, 6, 10, 0),
@@ -88,8 +89,8 @@ public class TollCalculatorTests
         };
 
         //act
-        var tollCalculator = new Logic.TollCalculator();
-        var tollFee = tollCalculator.GetTollFee(vehicle, passingDates);
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicleType, passingDates);
         
         //assert
         Assert.Equal(18, tollFee);
@@ -99,7 +100,7 @@ public class TollCalculatorTests
     public void TollCalculator_WhenMultipleCongestionFeesIsRegisteredDuringDay_AggregationIsCorrect()
     {
         //arrange
-        var vehicle = new Car();
+        var vehicleType = VehicleType.Car;
         var passingDates = new DateTime[]
         {
             new(2013, 03, 11, 6, 30, 0),
@@ -108,8 +109,8 @@ public class TollCalculatorTests
         };
 
         //act
-        var tollCalculator = new Logic.TollCalculator();
-        var tollFee = tollCalculator.GetTollFee(vehicle, passingDates);
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicleType, passingDates);
         
         //assert
         Assert.Equal(44, tollFee);
@@ -119,7 +120,7 @@ public class TollCalculatorTests
     public void TollCalculator_WhenDailyCongestionFeesExceedsMaximumDailyFee_MaximumDailyFeeIsReturned()
     {
         //arrange
-        var vehicle = new Car();
+        var vehicleType = VehicleType.Car;
         var passingDates = new DateTime[]
         {
             new(2013, 03, 11, 6, 30, 0),
@@ -129,8 +130,8 @@ public class TollCalculatorTests
         };
 
         //act
-        var tollCalculator = new Logic.TollCalculator();
-        var tollFee = tollCalculator.GetTollFee(vehicle, passingDates);
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicleType, passingDates);
         
         //assert
         Assert.Equal(60, tollFee);
@@ -140,7 +141,7 @@ public class TollCalculatorTests
     public void TollCalculator_WhenCongestionFeesIsFromMultipleDays_DailyFeesIsAggregated()
     {
         //arrange
-        var vehicle = new Car();
+        var vehicleType = VehicleType.Car;
         var passingDates = new DateTime[]
         {
             new(2013, 03, 11, 6, 30, 0),
@@ -152,8 +153,8 @@ public class TollCalculatorTests
         };
 
         //act
-        var tollCalculator = new Logic.TollCalculator();
-        var tollFee = tollCalculator.GetTollFee(vehicle, passingDates);
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicleType, passingDates);
         
         //assert
         Assert.Equal(88, tollFee);

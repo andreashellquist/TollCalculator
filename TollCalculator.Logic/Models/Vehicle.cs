@@ -1,7 +1,6 @@
-﻿namespace TollCalculator.Logic.Models
+namespace TollCalculator.Logic.Models;
+
+public class Vehicle
 {
-    public interface Vehicle
-    {
-        string GetVehicleType();
-    }
+    public VehicleType VehicleType { get; init; }
 }
