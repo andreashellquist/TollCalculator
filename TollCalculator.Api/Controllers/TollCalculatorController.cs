@@ -38,8 +38,8 @@ public class TollCalculatorController : ControllerBase
         }
 
         var totalFee = dto.Passings.Length == 1
-            ? _tollCalculator.GetTollFee(dto.Vehicle.VehicleType, dto.Passings.First())
-            : _tollCalculator.GetTotalTollFeeForMultiplePassings(dto.Vehicle.VehicleType, dto.Passings);
+            ? _tollCalculator.GetTollFee(dto.Vehicle, dto.Passings.First())
+            : _tollCalculator.GetTotalTollFeeForMultiplePassings(dto.Vehicle, dto.Passings);
 
         return totalFee;
     }

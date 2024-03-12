@@ -4,18 +4,12 @@ namespace TollCalculator.Logic;
 
 public interface ITollCalculator
 {
-    int GetTollFee(VehicleType vehicleType, DateTime passing);
-    int GetTotalTollFeeForMultiplePassings(VehicleType vehicleType, DateTime[] passages);
+    int GetTollFee(Vehicle vehicle, DateTime passing);
+    int GetTotalTollFeeForMultiplePassings(Vehicle vehicleType, DateTime[] passages);
 }
 
 public class TollCalculator : ITollCalculator
 {
-    private static readonly VehicleType[] TollFreeVehicleTypes =
-    {
-        VehicleType.Diplomat, VehicleType.Emergency, VehicleType.Foreign, VehicleType.Military, VehicleType.Motorbike,
-        VehicleType.Tractor
-    }; 
-    
     /**
      * Calculate the total toll fee for passings over a period of time
      *
@@ -23,7 +17,7 @@ public class TollCalculator : ITollCalculator
      * @param passages   - date and time of all passings over a period of time
      * @return - the total toll fee for that period of time
      */
-    public int GetTotalTollFeeForMultiplePassings(VehicleType vehicleType, DateTime[] passages)
+    public int GetTotalTollFeeForMultiplePassings(Vehicle vehicleType, DateTime[] passages)
     {
         var totalFee = 0;
 
@@ -79,9 +73,9 @@ public class TollCalculator : ITollCalculator
      * @param passages   - date and time of the passing
      * @return - the toll fee for the single passing
      */
-    public int GetTollFee(VehicleType vehicleType, DateTime passing)
+    public int GetTollFee(Vehicle vehicle, DateTime passing)
     {
-        if (IsTollFreeDate(passing) || IsTollFreeVehicle(vehicleType)) return 0;
+        if (IsTollFreeDate(passing) || vehicle.IsTollFree()) return 0;
 
         var hour = passing.Hour;
         var minute = passing.Minute;
@@ -134,11 +128,6 @@ public class TollCalculator : ITollCalculator
     {
         var diffInMinutes = currentDateTime.Subtract(intervalStart).TotalMinutes;
         return diffInMinutes <= 60;
-    }
-
-    private bool IsTollFreeVehicle(VehicleType vehicleType)
-    {
-        return TollFreeVehicleTypes.Contains(vehicleType);
     }
 
     private bool IsTollFreeDate(DateTime passage)

@@ -24,7 +24,7 @@ public class TollCalculatorControllerTests
 
         var tollCalculatorMoq = new Mock<ITollCalculator>();
         tollCalculatorMoq.Setup(x =>
-            x.GetTotalTollFeeForMultiplePassings(vehiclePassingDto.Vehicle.VehicleType, vehiclePassingDto.Passings)).Returns(0);
+            x.GetTotalTollFeeForMultiplePassings(vehiclePassingDto.Vehicle, vehiclePassingDto.Passings)).Returns(0);
 
         var loggerMoq = new Mock<ILogger<TollCalculatorController>>();
 
