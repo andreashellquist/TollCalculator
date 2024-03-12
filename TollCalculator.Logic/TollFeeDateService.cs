@@ -10,13 +10,6 @@ public interface ITollFeeDateService
 
 public class TollFeeDateService : ITollFeeDateService
 {
-    private readonly ITollFeeDateService _tollFeeDateService;
-
-    public TollFeeDateService(ITollFeeDateService tollFeeDateService)
-    {
-        _tollFeeDateService = tollFeeDateService;
-    }
-    
     public bool IsTollFreeDate(DateTime passage)
     {
         var year = passage.Year;
