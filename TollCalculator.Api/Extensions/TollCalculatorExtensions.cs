@@ -4,8 +4,9 @@ namespace TollCalculator.Extensions;
 
 public static class TollCalculatorExtensions
 {
-    public static void AddTollCalculator(this IServiceCollection services)
+    public static void AddTollCalculatorDependencies(this IServiceCollection services)
     {
         services.AddTransient<ITollCalculator, Logic.TollCalculator>();
+        services.AddTransient<ITollFeeDateService, TollFeeDateService>();
     }
 }

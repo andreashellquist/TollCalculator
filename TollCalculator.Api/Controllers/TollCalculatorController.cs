@@ -19,6 +19,24 @@ public class TollCalculatorController : ControllerBase
     }
 
     [HttpGet(Name = "CalculateTollFeeByPassage")]
+    public int Get(VehiclePassingDto dto)
+    {
+        if (dto == null)
+        {
+            _logger.LogError("VehiclePassingsDto object is null.");
+            throw new ArgumentNullException(nameof(dto));
+        }
+        if (dto.Vehicle.VehicleType == VehicleType.Undefined)
+        {
+            _logger.LogInformation("Vehicle type is not valid. Skipping calculation");
+            return 0;
+        }
+
+        var totalFee = _tollCalculator.GetTollFee(dto.Vehicle, dto.Passing);
+        return totalFee;
+    }
+    
+    [HttpGet(Name = "CalculateTollFeeByPassages")]
     public int Get(VehiclePassingsDto dto)
     {
         if (dto == null)
@@ -37,9 +55,7 @@ public class TollCalculatorController : ControllerBase
             return 0;
         }
 
-        var totalFee = dto.Passings.Length == 1
-            ? _tollCalculator.GetTollFee(dto.Vehicle, dto.Passings.First())
-            : _tollCalculator.GetTotalTollFeeForMultiplePassings(dto.Vehicle, dto.Passings);
+        var totalFee = _tollCalculator.GetTotalTollFeeForMultiplePassings(dto.Vehicle, dto.Passings);
 
         return totalFee;
     }

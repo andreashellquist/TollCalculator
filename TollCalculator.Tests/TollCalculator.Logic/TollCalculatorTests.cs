@@ -1,3 +1,5 @@
+using Moq;
+using TollCalculator.Logic;
 using TollCalculator.Logic.Models;
 
 namespace TollCalculator.Tests.TollCalculator.Logic;
@@ -11,8 +13,12 @@ public class TollCalculatorTests
         var vehicle = new Vehicle { VehicleType = VehicleType.Motorbike };
         var passingDate = new DateTime(2013, 03, 11, 8, 4, 0); //Monday
 
+        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        tollCalculatorMoq.Setup(x =>
+            x.IsTollFreeDate(passingDate)).Returns(false);
+
         //act
-        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator(tollCalculatorMoq.Object);
         var tollFee = tollCalculator.GetTollFee(vehicle, passingDate);
 
         //assert
@@ -27,8 +33,12 @@ public class TollCalculatorTests
         var vehicle = new Vehicle { VehicleType = VehicleType.Car };
         var passingDate = new DateTime(2013, 03, 10, 8, 4, 0); //Sunday
 
+        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        tollCalculatorMoq.Setup(x =>
+            x.IsTollFreeDate(passingDate)).Returns(true);
+
         //act
-        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator(tollCalculatorMoq.Object);
         var tollFee = tollCalculator.GetTollFee(vehicle, passingDate);
 
         //assert
@@ -52,8 +62,12 @@ public class TollCalculatorTests
         var vehicle = new Vehicle { VehicleType = VehicleType.Car };
         var passingDate = new DateTime(2013, 03, 11, hour, minute, 0); //Monday
 
+        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        tollCalculatorMoq.Setup(x =>
+            x.IsTollFreeDate(passingDate)).Returns(false);
+
         //act
-        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator(tollCalculatorMoq.Object);
         var tollFee = tollCalculator.GetTollFee(vehicle, passingDate);
 
         //assert
@@ -67,8 +81,12 @@ public class TollCalculatorTests
         var vehicle = new Vehicle { VehicleType = VehicleType.Car };
         var passingDates = new DateTime[] { };
 
+        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        tollCalculatorMoq.Setup(x =>
+            x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
+
         //act
-        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator(tollCalculatorMoq.Object);
         var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicle, passingDates);
 
         //assert
@@ -87,8 +105,12 @@ public class TollCalculatorTests
             new(2013, 03, 11, 7, 09, 0)
         };
 
+        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        tollCalculatorMoq.Setup(x =>
+            x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
+
         //act
-        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator(tollCalculatorMoq.Object);
         var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicle, passingDates);
 
         //assert
@@ -106,9 +128,12 @@ public class TollCalculatorTests
             new(2013, 03, 11, 7, 31, 0),
             new(2013, 03, 11, 15, 00, 0),
         };
+        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        tollCalculatorMoq.Setup(x =>
+            x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
 
         //act
-        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator(tollCalculatorMoq.Object);
         var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicle, passingDates);
 
         //assert
@@ -128,8 +153,12 @@ public class TollCalculatorTests
             new(2013, 03, 11, 16, 01, 0)
         };
 
+        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        tollCalculatorMoq.Setup(x =>
+            x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
+
         //act
-        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator(tollCalculatorMoq.Object);
         var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicle, passingDates);
 
         //assert
@@ -151,8 +180,12 @@ public class TollCalculatorTests
             new(2013, 03, 12, 15, 00, 0),
         };
 
+        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        tollCalculatorMoq.Setup(x =>
+            x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
+
         //act
-        var tollCalculator = new global::TollCalculator.Logic.TollCalculator();
+        var tollCalculator = new global::TollCalculator.Logic.TollCalculator(tollCalculatorMoq.Object);
         var tollFee = tollCalculator.GetTotalTollFeeForMultiplePassings(vehicle, passingDates);
 
         //assert
