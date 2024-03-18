@@ -2,13 +2,13 @@
 
 namespace TollCalculator.Logic;
 
-public interface ITollFeeDateService
+public interface ITollFeeDateValidationService
 
 {
     bool IsTollFreeDate(DateTime passage);
 }
 
-public class TollFeeDateService : ITollFeeDateService
+public class TollFeeDateValidationValidationService : ITollFeeDateValidationService
 {
     public bool IsTollFreeDate(DateTime passage)
     {

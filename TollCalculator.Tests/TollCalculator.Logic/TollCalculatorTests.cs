@@ -13,7 +13,7 @@ public class TollCalculatorTests
         var vehicle = new Vehicle { VehicleType = VehicleType.Motorbike };
         var passingDate = new DateTime(2013, 03, 11, 8, 4, 0); //Monday
 
-        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        var tollCalculatorMoq = new Mock<ITollFeeDateValidationService>();
         tollCalculatorMoq.Setup(x =>
             x.IsTollFreeDate(passingDate)).Returns(false);
 
@@ -33,7 +33,7 @@ public class TollCalculatorTests
         var vehicle = new Vehicle { VehicleType = VehicleType.Car };
         var passingDate = new DateTime(2013, 03, 10, 8, 4, 0); //Sunday
 
-        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        var tollCalculatorMoq = new Mock<ITollFeeDateValidationService>();
         tollCalculatorMoq.Setup(x =>
             x.IsTollFreeDate(passingDate)).Returns(true);
 
@@ -62,7 +62,7 @@ public class TollCalculatorTests
         var vehicle = new Vehicle { VehicleType = VehicleType.Car };
         var passingDate = new DateTime(2013, 03, 11, hour, minute, 0); //Monday
 
-        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        var tollCalculatorMoq = new Mock<ITollFeeDateValidationService>();
         tollCalculatorMoq.Setup(x =>
             x.IsTollFreeDate(passingDate)).Returns(false);
 
@@ -81,7 +81,7 @@ public class TollCalculatorTests
         var vehicle = new Vehicle { VehicleType = VehicleType.Car };
         var passingDates = new DateTime[] { };
 
-        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        var tollCalculatorMoq = new Mock<ITollFeeDateValidationService>();
         tollCalculatorMoq.Setup(x =>
             x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
 
@@ -105,7 +105,7 @@ public class TollCalculatorTests
             new(2013, 03, 11, 7, 09, 0)
         };
 
-        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        var tollCalculatorMoq = new Mock<ITollFeeDateValidationService>();
         tollCalculatorMoq.Setup(x =>
             x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
 
@@ -128,7 +128,7 @@ public class TollCalculatorTests
             new(2013, 03, 11, 7, 31, 0),
             new(2013, 03, 11, 15, 00, 0),
         };
-        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        var tollCalculatorMoq = new Mock<ITollFeeDateValidationService>();
         tollCalculatorMoq.Setup(x =>
             x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
 
@@ -153,7 +153,7 @@ public class TollCalculatorTests
             new(2013, 03, 11, 16, 01, 0)
         };
 
-        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        var tollCalculatorMoq = new Mock<ITollFeeDateValidationService>();
         tollCalculatorMoq.Setup(x =>
             x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
 
@@ -180,7 +180,7 @@ public class TollCalculatorTests
             new(2013, 03, 12, 15, 00, 0),
         };
 
-        var tollCalculatorMoq = new Mock<ITollFeeDateService>();
+        var tollCalculatorMoq = new Mock<ITollFeeDateValidationService>();
         tollCalculatorMoq.Setup(x =>
             x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(false);
 

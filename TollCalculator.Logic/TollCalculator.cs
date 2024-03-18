@@ -10,11 +10,11 @@ public interface ITollCalculator
 
 public class TollCalculator : ITollCalculator
 {
-    private readonly ITollFeeDateService _tollFeeDateService;
+    private readonly ITollFeeDateValidationService _tollFeeDateValidationService;
 
-    public TollCalculator(ITollFeeDateService tollFeeDateService)
+    public TollCalculator(ITollFeeDateValidationService tollFeeDateValidationService)
     {
-        _tollFeeDateService = tollFeeDateService;
+        _tollFeeDateValidationService = tollFeeDateValidationService;
     }
     /**
      * Calculate the total toll fee for passings over a period of time
@@ -82,7 +82,7 @@ public class TollCalculator : ITollCalculator
     
     public int GetTollFee(Vehicle vehicle, DateTime passing)
     {
-        if (_tollFeeDateService.IsTollFreeDate(passing) || vehicle.IsTollFree()) return 0;
+        if (_tollFeeDateValidationService.IsTollFreeDate(passing) || vehicle.IsTollFree()) return 0;
 
         var hour = passing.Hour;
         var minute = passing.Minute;

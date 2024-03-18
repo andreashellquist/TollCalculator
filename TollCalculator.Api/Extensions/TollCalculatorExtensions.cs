@@ -7,6 +7,6 @@ public static class TollCalculatorExtensions
     public static void AddTollCalculatorDependencies(this IServiceCollection services)
     {
         services.AddTransient<ITollCalculator, Logic.TollCalculator>();
-        services.AddTransient<ITollFeeDateService, TollFeeDateService>();
+        services.AddTransient<ITollFeeDateValidationService, TollFeeDateValidationValidationService>();
     }
 }
